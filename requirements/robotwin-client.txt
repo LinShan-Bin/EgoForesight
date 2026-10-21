@@ -1,0 +1,10 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+# Add to the official simulator environment, not the policy environment.
+numpy==1.26.4
+scipy==1.15.3
+Pillow>=10,<13
+omegaconf==2.3.0
+msgpack==1.1.2
+websockets==15.0.1
+PyYAML>=6,<7
+typing_extensions>=4.8,<5

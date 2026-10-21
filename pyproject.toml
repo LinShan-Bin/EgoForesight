@@ -1,0 +1,42 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "egofore"
+version = "0.1.0"
+description = "EgoForesight: MoT3 Foresight Forcing post-training and deployment"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Chubin Zhang"}]
+license = {file = "LICENSE"}
+# Install the selected environment's requirements before editable installation.
+dependencies = []
+
+[project.scripts]
+egofore-dashboard = "scripts.posttrain_dashboard.serve:main"
+egofore-prepare-r1pro = "scripts.prepare_r1pro:main"
+
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE.md", "licenses/*.txt"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["starVLA*", "deployment*", "scripts*", "examples*", "third_party*"]
+
+[tool.setuptools.package-data]
+"scripts.posttrain_dashboard" = ["*.html", "*.json"]
+"third_party.robotwin_client" = ["*.yml", "*.txt"]
+
+[tool.black]
+line-length = 121
+target-version = ["py310"]
+preview = true
+
+[tool.ruff]
+line-length = 121
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82", "I"]

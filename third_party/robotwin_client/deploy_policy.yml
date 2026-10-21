@@ -1,0 +1,14 @@
+# EgoForesight modifications Copyright 2026 Chubin Zhang.
+policy_name: posttrain_interface
+task_name: beat_block_hammer
+task_config: demo_clean
+ckpt_setting: null
+seed: null
+instruction_type: unseen
+
+# StarVLA Client Parameters
+host: "127.0.0.1"
+port: 5693
+policy_ckpt_path: null  # Required at launch; no weights are bundled.
+unnorm_key: "robotwin"
+embodiment_tag: "my_robotwin"

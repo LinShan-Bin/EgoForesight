@@ -1,0 +1,8 @@
+# Copyright 2026 Chubin Zhang
+compute_environment: LOCAL_MACHINE
+debug: false
+distributed_type: DEEPSPEED
+deepspeed_config:
+  deepspeed_config_file: configs/distributed/zero2_released.json
+  deepspeed_multinode_launcher: standard
+  zero3_init_flag: false

@@ -1,0 +1,228 @@
+# Copyright 2026 Chubin Zhang. All rights reserved.
+# SPDX-License-Identifier: MIT
+
+# Reproduces the released post-training recipe. launcher derives accumulation.
+run_id: egofore_robotwin_full
+run_root_dir: results
+seed: 42
+trackers:
+- jsonl
+framework:
+  name: Qwen35MoT3
+  qwenvl:
+    image_processor_on_gpu: true
+    optimize_image_layout: true
+    base_vlm: ${oc.env:QWEN_MODEL}
+    attn_implementation: flash_attention_4
+    tuning_mode: full
+    gradient_checkpointing: false
+    max_context_tokens: 512
+    require_gdn_fast_path: true
+  dino:
+    model_variant: dinov3_vitb16
+    model_path: ${oc.env:DINO_REPO}
+    weights_path: ${oc.env:DINO_WEIGHTS}
+    feature_dim: 768
+    patch_size: 16
+    spatial_pool_size: 2
+    view_index: 0
+    freeze: true
+  mot:
+    hidden_size: 1536
+    depth: 16
+    vlm_feature_layers:
+    - 4
+    - 8
+    - 12
+    - 16
+    - 20
+    - 24
+    - 28
+    - 32
+    num_vlm_features: 8
+    layers_per_vlm_feature: 2
+    num_heads: 24
+    context_dim: 2560
+    vision_dim: 768
+    action_dim: 130
+    vision_intermediate_size: 6144
+    action_intermediate_size: 2048
+    timestep_rank: 128
+    adaln_rank: 128
+    timestep_scale: 1000.0
+    qk_norm_eps: 1.0e-06
+    max_vision_tokens: 120
+    max_action_tokens: 48
+    gradient_checkpointing: false
+    metadata:
+      num_buckets: 4096
+      fields:
+      - embodiment_tag
+      - end_effector_type
+      - dataset_id
+      - dataset_family
+      - robot_family
+      - robot_type
+      - control_mode
+      - action_representation
+    robot_state:
+      enabled: true
+      tokenization: single_token
+      encoder_hidden_size: 512
+    pretrained_action_tokens: 30
+  action_model:
+    encoding: raw
+    action_dim: 130
+    state_dim: 130
+    chunk_size: 48
+    action_space:
+      name: robotwin_aug_aligned
+      representation: relative
+      statistics_key: robotwin_aug_aligned
+      relative_eef_frame: camera_spatial
+      static_camera_frame: true
+      frame_convention: robotwin_head_opencv_v1
+      joint_representation: absolute
+  flow:
+    inference_steps: 4
+    predict_future_vision: true
+    timestep_distribution: beta
+    beta_alpha: 1.5
+    beta_beta: 1.0
+    vision_loss_weight: 0.1
+    action_loss_weight: 1.0
+    classifier_free_guidance:
+      enabled: true
+      context_dropout_prob: 0.1
+    foresight_forcing:
+      enabled: true
+      alpha_min: 0.5
+      alpha_max: 3.0
+      teacher_timestep_ratio:
+        distribution: uniform
+        min: 0.0
+        max: 1.0
+      teacher_enabled: true
+      ema_decay: 0.999
+      student_layer: 5
+      teacher_layer: 11
+      projector_hidden_size: 3072
+      representation_weight: 0.05
+      representation_start_step: 0
+      representation_warmup_steps: 0
+      teacher_edge_prob: 0.02
+      log_per_dataset_metrics: false
+datasets:
+  vla_data:
+    dataset_py: lerobot_datasets
+    data_root_dir: ${oc.env:DATA_ROOT}
+    data_mix: robotwin_full_aug_aligned_no_mirror
+    per_device_batch_size: 8
+    return_image_pair: true
+    image_pair_delta_indices:
+    - 0
+    - 48
+    action_horizon: 48
+    prompt_style: task_and_subtask_with_others
+    language_key_mode: all
+    control_mode_prompt_format: ee_representation_v1
+    include_meta: true
+    include_state: true
+    image_size:
+    - 384
+    - 320
+    default_image_resolution:
+    - 3
+    - 384
+    - 320
+    image_pair_view_layout: head_wrist
+    image_pair_head_size:
+    - 256
+    - 320
+    image_pair_wrist_size:
+    - 128
+    - 160
+    image_pair_head_keywords:
+    - head
+    - ego
+    - front
+    - top
+    - exterior
+    - high
+    - main
+    image_pair_wrist_keywords:
+    - wrist
+    - hand
+    num_workers: 4
+    persistent_workers: true
+    prefetch_factor: 2
+    video_backend: decord
+    enable_action_alignment: true
+    enable_relative_action: true
+    relative_action_control_modes:
+    - ee
+    relative_action_excluded_robot_types: []
+    enable_state_relative_eef: true
+    relative_eef_frame: camera_spatial
+    enable_camera_motion_compensation: true
+    dataset_quality_index_filter_camera_trajectory: false
+    max_episodes_per_dataset: null
+    static_camera_frame: true
+    dataset_quality_index_enabled: false
+    dataset_quality_index_required: false
+    image_pair_view_roles:
+      head:
+      - video.image_high
+    image_pair_only: true
+    video_backend_kwargs:
+      num_threads: 1
+    image_pair_color_jitter:
+      enabled: true
+      brightness: 0.3
+      contrast: 0.4
+      saturation: 0.5
+      hue: 0.08
+trainer:
+  use_torch_compile: true
+  torch_compile_modules: mot_blocks
+  torch_compile_mode: default
+  max_train_steps: 150000
+  num_warmup_steps: 2000
+  save_interval: 10000
+  eval_interval: 1000
+  open_loop_interval: 0
+  open_loop:
+    enabled: false
+  logging_frequency: 100
+  logging:
+    compact: true
+  gradient_accumulation_steps: 1
+  gradient_clipping: 1.0
+  save_final: true
+  freeze_modules: mot_model.vision_final_norm,mot_model.action_final_norm,mot_model.blocks.0.vision_joint_norm,mot_model.blocks.0.action_joint_norm,mot_model.blocks.0.vision_post_attn_gamma,mot_model.blocks.0.action_post_attn_gamma,mot_model.blocks.0.vision_ffn_norm,mot_model.blocks.0.action_ffn_norm,mot_model.blocks.1.vision_joint_norm,mot_model.blocks.1.action_joint_norm,mot_model.blocks.1.vision_post_attn_gamma,mot_model.blocks.1.action_post_attn_gamma,mot_model.blocks.1.vision_ffn_norm,mot_model.blocks.1.action_ffn_norm,mot_model.blocks.2.vision_joint_norm,mot_model.blocks.2.action_joint_norm,mot_model.blocks.2.vision_post_attn_gamma,mot_model.blocks.2.action_post_attn_gamma,mot_model.blocks.2.vision_ffn_norm,mot_model.blocks.2.action_ffn_norm,mot_model.blocks.3.vision_joint_norm,mot_model.blocks.3.action_joint_norm,mot_model.blocks.3.vision_post_attn_gamma,mot_model.blocks.3.action_post_attn_gamma,mot_model.blocks.3.vision_ffn_norm,mot_model.blocks.3.action_ffn_norm,mot_model.blocks.4.vision_joint_norm,mot_model.blocks.4.action_joint_norm,mot_model.blocks.4.vision_post_attn_gamma,mot_model.blocks.4.action_post_attn_gamma,mot_model.blocks.4.vision_ffn_norm,mot_model.blocks.4.action_ffn_norm,mot_model.blocks.5.vision_joint_norm,mot_model.blocks.5.action_joint_norm,mot_model.blocks.5.vision_post_attn_gamma,mot_model.blocks.5.action_post_attn_gamma,mot_model.blocks.5.vision_ffn_norm,mot_model.blocks.5.action_ffn_norm,mot_model.blocks.6.vision_joint_norm,mot_model.blocks.6.action_joint_norm,mot_model.blocks.6.vision_post_attn_gamma,mot_model.blocks.6.action_post_attn_gamma,mot_model.blocks.6.vision_ffn_norm,mot_model.blocks.6.action_ffn_norm,mot_model.blocks.7.vision_joint_norm,mot_model.blocks.7.action_joint_norm,mot_model.blocks.7.vision_post_attn_gamma,mot_model.blocks.7.action_post_attn_gamma,mot_model.blocks.7.vision_ffn_norm,mot_model.blocks.7.action_ffn_norm,mot_model.blocks.8.vision_joint_norm,mot_model.blocks.8.action_joint_norm,mot_model.blocks.8.vision_post_attn_gamma,mot_model.blocks.8.action_post_attn_gamma,mot_model.blocks.8.vision_ffn_norm,mot_model.blocks.8.action_ffn_norm,mot_model.blocks.9.vision_joint_norm,mot_model.blocks.9.action_joint_norm,mot_model.blocks.9.vision_post_attn_gamma,mot_model.blocks.9.action_post_attn_gamma,mot_model.blocks.9.vision_ffn_norm,mot_model.blocks.9.action_ffn_norm,mot_model.blocks.10.vision_joint_norm,mot_model.blocks.10.action_joint_norm,mot_model.blocks.10.vision_post_attn_gamma,mot_model.blocks.10.action_post_attn_gamma,mot_model.blocks.10.vision_ffn_norm,mot_model.blocks.10.action_ffn_norm,mot_model.blocks.11.vision_joint_norm,mot_model.blocks.11.action_joint_norm,mot_model.blocks.11.vision_post_attn_gamma,mot_model.blocks.11.action_post_attn_gamma,mot_model.blocks.11.vision_ffn_norm,mot_model.blocks.11.action_ffn_norm,mot_model.blocks.12.vision_joint_norm,mot_model.blocks.12.action_joint_norm,mot_model.blocks.12.vision_post_attn_gamma,mot_model.blocks.12.action_post_attn_gamma,mot_model.blocks.12.vision_ffn_norm,mot_model.blocks.12.action_ffn_norm,mot_model.blocks.13.vision_joint_norm,mot_model.blocks.13.action_joint_norm,mot_model.blocks.13.vision_post_attn_gamma,mot_model.blocks.13.action_post_attn_gamma,mot_model.blocks.13.vision_ffn_norm,mot_model.blocks.13.action_ffn_norm,mot_model.blocks.14.vision_joint_norm,mot_model.blocks.14.action_joint_norm,mot_model.blocks.14.vision_post_attn_gamma,mot_model.blocks.14.action_post_attn_gamma,mot_model.blocks.14.vision_ffn_norm,mot_model.blocks.14.action_ffn_norm,mot_model.blocks.15.vision_joint_norm,mot_model.blocks.15.action_joint_norm,mot_model.blocks.15.vision_post_attn_gamma,mot_model.blocks.15.action_post_attn_gamma,mot_model.blocks.15.vision_ffn_norm,mot_model.blocks.15.action_ffn_norm
+  learning_rate:
+    base: 1e-5
+    qwen_vl_interface: 1e-5
+    mot_model: 5e-5
+  lr_scheduler_type: cosine_with_min_lr
+  scheduler_specific_kwargs:
+    min_lr_rate: 0.1
+  optimizer:
+    name: Muon
+    backend: deepspeed
+    ns_kernel: hybrid
+    aux_gradient_clipping: 1.0
+    betas:
+    - 0.9
+    - 0.95
+    eps: 1.0e-08
+    weight_decay: 0.01
+    mot_weight_decay: 1.0e-08
+    momentum: 0.95
+    ns_method: gram
+    adjust_lr_fn: match_rms_adamw
+  is_resume: false
+  resume_epoch: null
+  resume_step: null
+  pretrained_checkpoint: ${oc.env:PRETRAINED_CHECKPOINT}
+  freeze_vlm_for_vla: false

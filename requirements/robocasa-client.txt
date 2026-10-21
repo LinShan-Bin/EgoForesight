@@ -1,0 +1,19 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+# Add to the official simulator environment, not the policy environment.
+numpy==1.26.4
+scipy==1.15.3
+Pillow>=10,<13
+omegaconf==2.3.0
+msgpack==1.1.2
+websockets==15.0.1
+PyYAML>=6,<7
+av==12.3.0
+opencv-python-headless==4.11.0.86
+tyro==0.9.17
+pydantic>=2.10,<3
+mujoco==3.2.6
+mink==0.0.5
+qpsolvers==4.8.1
+transforms3d==0.4.2
+# Install robocasa/robosuite from their matching official source trees first.
+typing_extensions>=4.8,<5

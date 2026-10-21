@@ -1,0 +1,54 @@
+{
+  "robocasa": {
+    "seed": 0,
+    "cfg_scale": 1.0,
+    "temporal_half_life_steps": 4.0,
+    "base_port": 6100,
+    "max_episode_steps": 720,
+    "server_gpus": [
+      0
+    ],
+    "control_mode": "joint",
+    "setting": "demo_randomized",
+    "benchmark": "robocasa",
+    "episodes": 50,
+    "execution_steps": 16,
+    "flow_steps": 20,
+    "gamma": 1.5,
+    "temporal_ensemble": "exponential",
+    "clients_per_gpu": 8,
+    "client_gpus": [
+      1
+    ],
+    "ema_teacher": "auto"
+  },
+  "robotwin": {
+    "seed": 0,
+    "cfg_scale": 1.0,
+    "temporal_half_life_steps": 4.0,
+    "base_port": 6100,
+    "max_episode_steps": 720,
+    "server_gpus": [
+      0
+    ],
+    "control_mode": "joint",
+    "setting": "demo_randomized",
+    "benchmark": "robotwin",
+    "episodes": 100,
+    "execution_steps": 24,
+    "flow_steps": 10,
+    "gamma": 1.0,
+    "temporal_ensemble": "disabled",
+    "clients_per_gpu": 1,
+    "client_gpus": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ema_teacher": "online"
+  }
+}

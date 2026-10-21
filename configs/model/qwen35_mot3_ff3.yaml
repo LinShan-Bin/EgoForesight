@@ -1,0 +1,102 @@
+# Copyright 2026 Chubin Zhang. All rights reserved.
+# SPDX-License-Identifier: MIT
+
+framework:
+  name: Qwen35MoT3
+  qwenvl:
+    image_processor_on_gpu: true
+    optimize_image_layout: true
+    base_vlm: ${oc.env:QWEN_MODEL}
+    attn_implementation: flash_attention_4
+    tuning_mode: full
+    gradient_checkpointing: false
+    max_context_tokens: 512
+    require_gdn_fast_path: true
+  dino:
+    model_variant: dinov3_vitb16
+    model_path: ${oc.env:DINO_REPO}
+    weights_path: ${oc.env:DINO_WEIGHTS}
+    feature_dim: 768
+    patch_size: 16
+    spatial_pool_size: 2
+    view_index: 0
+    freeze: true
+  mot:
+    hidden_size: 1536
+    depth: 16
+    vlm_feature_layers:
+    - 4
+    - 8
+    - 12
+    - 16
+    - 20
+    - 24
+    - 28
+    - 32
+    num_vlm_features: 8
+    layers_per_vlm_feature: 2
+    num_heads: 24
+    context_dim: 2560
+    vision_dim: 768
+    action_dim: 130
+    vision_intermediate_size: 6144
+    action_intermediate_size: 2048
+    timestep_rank: 128
+    adaln_rank: 128
+    timestep_scale: 1000.0
+    qk_norm_eps: 1.0e-06
+    max_vision_tokens: 120
+    max_action_tokens: 30
+    gradient_checkpointing: false
+    metadata:
+      num_buckets: 4096
+      fields:
+      - embodiment_tag
+      - end_effector_type
+      - dataset_id
+      - dataset_family
+      - robot_family
+      - robot_type
+      - control_mode
+      - action_representation
+    robot_state:
+      enabled: true
+      tokenization: single_token
+      encoder_hidden_size: 512
+  action_model:
+    encoding: raw
+    action_dim: 130
+    state_dim: 130
+    chunk_size: 30
+    action_space:
+      name: canonical
+      representation: relative
+  flow:
+    inference_steps: 4
+    predict_future_vision: true
+    timestep_distribution: beta
+    beta_alpha: 1.5
+    beta_beta: 1.0
+    vision_loss_weight: 0.1
+    action_loss_weight: 1.0
+    classifier_free_guidance:
+      enabled: true
+      context_dropout_prob: 0.1
+    foresight_forcing:
+      enabled: true
+      alpha_min: 0.5
+      alpha_max: 3.0
+      teacher_timestep_ratio:
+        distribution: uniform
+        min: 0.0
+        max: 1.0
+      teacher_enabled: true
+      ema_decay: 0.999
+      student_layer: 5
+      teacher_layer: 11
+      projector_hidden_size: 3072
+      representation_weight: 0.05
+      representation_start_step: 0
+      representation_warmup_steps: 0
+      teacher_edge_prob: 0.02
+      log_per_dataset_metrics: false

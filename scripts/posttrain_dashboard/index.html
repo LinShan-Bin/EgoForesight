@@ -1,0 +1,282 @@
+<!-- EgoForesight modifications Copyright 2026 Chubin Zhang. -->
+<!doctype html>
+<!-- Copyright 2025 starVLA community. MIT License. EgoForesight additions by Chubin Zhang, 2026.
+Modification: Live Posttrain experiment, task, and video dashboard. -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Posttrain · Experiment dashboard</title>
+<style>
+:root{color-scheme:dark;--bg:#10151c;--panel:#171f29;--line:#2c3948;--text:#eaf0f6;--muted:#a6b6c8;--blue:#68b7ff;--green:#61d5b0;--red:#ff9a98}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,sans-serif}main{max-width:1600px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}h1{font-size:25px;margin:0}h2{font-size:18px;margin:0 0 14px}p{margin:6px 0;color:var(--muted)}button,select{font:inherit;color:inherit;background:#223043;border:1px solid #43576d;border-radius:6px;padding:7px 11px;cursor:pointer}button:hover{border-color:var(--blue)}button:focus-visible,select:focus-visible{outline:2px solid var(--blue)}.tools{display:flex;align-items:center;gap:14px;font-size:14px}.meta{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.summary{display:flex;gap:30px;flex-wrap:wrap;margin:25px 0}.summary b{font-size:28px;margin-right:7px;font-variant-numeric:tabular-nums}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:20px}.scroll{overflow:auto;max-height:470px}table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;color:var(--muted);font-weight:500;position:sticky;top:0;background:var(--panel);z-index:1}td,th{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}tr.selected{background:#24384d}.run-name{max-width:540px;overflow-wrap:anywhere;display:block;text-align:left;background:none;border:0;padding:0;color:var(--blue);font-size:14px}.pill{display:inline-block;white-space:nowrap;padding:2px 8px;border:1px solid var(--line);border-radius:20px;font-size:13px}.running{color:var(--green)}.done{color:var(--blue)}.error,.invalid{color:var(--red)}.number{white-space:nowrap;font-variant-numeric:tabular-nums}.bar{height:5px;min-width:110px;background:#304053;border-radius:4px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue)}.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}.task-btn{border:0;background:none;color:var(--blue);font-size:14px;padding:0;text-align:left;overflow-wrap:anywhere}.video-tools{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}select{min-width:0;max-width:100%;font-size:14px}#clip{flex:1}video{display:block;width:100%;max-height:480px;background:#06090d;border-radius:6px}canvas{width:100%;height:180px;display:block;margin-top:10px}#notice{color:var(--red);margin:10px 0}#selected-name{overflow-wrap:anywhere}a{color:var(--blue)}.empty{padding:25px;text-align:center;color:var(--muted)}@media(max-width:950px){main{padding:16px}.grid{grid-template-columns:1fr}.summary{gap:15px}.panel{padding:14px}.run-name{min-width:260px}}
+input{font:inherit;color:inherit;background:#223043;border:1px solid #43576d;border-radius:6px;padding:7px;width:150px}#search{width:380px}input[type=checkbox]{width:auto}.video-tools label{min-width:0;max-width:100%}#checkpoint{width:100%;max-width:100%!important}#submit-form>.video-tools:first-of-type>label{flex:1 1 500px}
+:root{--bg:#0b1017;--panel:#121b26;--line:#263445;--text:#e5edf6;--muted:#8ea1b7;--blue:#8bbfff;--green:#6ae0bd}
+body{background:radial-gradient(ellipse at 85% 0%,#18283d 0,transparent 48%),var(--bg);font-size:14px}main{max-width:1760px;padding:0 32px 40px}.top-deck{position:sticky;top:0;z-index:20;margin:0 -32px 28px;padding:20px 32px 16px;background:rgba(11,16,23,.95);backdrop-filter:blur(22px);border-bottom:1px solid #34465c;box-shadow:0 12px 35px #0003}h1{font-size:24px;letter-spacing:-.7px}h2{font-size:17px;letter-spacing:.15px}.top-deck .summary{margin:15px 0;gap:12px}.summary>span{border:1px solid var(--line);border-radius:8px;padding:7px 16px;background:#172230}.summary b{font-size:23px;margin-right:10px}.panel{border-radius:14px;padding:24px;border-color:#29394c;box-shadow:0 10px 30px #0002;background:linear-gradient(130deg,#16212e,#111a25)}th{background:#16212e;font-size:12px;letter-spacing:.5px}td,th{padding:14px 12px}tbody tr:hover{background:#20334a66}tr.selected{background:#233c56}button,input,select{border-radius:8px;border-color:#344960;background:#19283a}button{transition:background .15s,border-color .15s}button:hover{background:#2a4059}input:focus,select:focus{outline:2px solid #80b6f477;outline-offset:2px}#submit-button{background:#9bc6ff;color:#0b1c31;font-weight:650;padding:9px 22px;border:0}#submit-status{margin-left:12px}.meta{font-size:12px}.video-tools{gap:12px;margin:16px 0}.video-tools label{display:flex;align-items:center;gap:8px}.gpu-strip{display:flex;gap:18px;align-items:center}.gpu-heading{font-size:10px;letter-spacing:1.6px;color:#bdd3ed;white-space:nowrap}.gpu-heading span{display:block;letter-spacing:0;font-size:10px;color:var(--muted);margin-top:3px}#gpus{display:grid;grid-template-columns:repeat(8,minmax(85px,1fr));gap:8px;flex:1;min-width:0}.gpu-card{padding:8px 10px;background:#152231;border:1px solid #293d53;border-radius:8px;font-variant-numeric:tabular-nums}.gpu-card>div{display:flex;justify-content:space-between;gap:6px;font-size:11px}.gpu-card b{color:#a7cef9}.gpu-card .bar{min-width:0;height:3px;margin:5px 0}.gpu-card .bar i{background:#6ae0bd}.gpu-card small{font-size:10px;color:var(--muted);white-space:nowrap}.delete-btn{font-size:12px;color:#d7a3ac;background:transparent;padding:4px 9px;margin-top:5px}.delete-btn:disabled{opacity:.3;cursor:not-allowed}#notice:empty{display:none}#directory{max-width:900px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#chart-setting{margin-bottom:10px}
+@media(max-width:1100px){#gpus{grid-template-columns:repeat(4,minmax(70px,1fr))}.gpu-heading{display:none}.top-deck{padding:12px 20px;margin:0 -20px 20px}main{padding:0 20px 30px}.top-deck .summary{margin:10px 0}}
+@media(max-width:600px){.top-deck header{gap:8px}.top-deck h1{font-size:19px}.top-deck #directory{display:none}.summary>span{padding:4px 8px}.summary b{font-size:18px}#gpus{gap:4px}.gpu-card{padding:5px}.gpu-card small{font-size:9px}.panel{padding:14px}.tools{font-size:12px}.top-deck{padding:10px 16px;margin:0 -16px 16px}main{padding:0 16px 24px}}
+.run-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:9px}.run-actions button{font-size:11px;padding:3px 8px;background:transparent}.run-actions .is-pinned{color:#ffd894;border-color:#8b7044;background:#54402444}.tag{display:inline-block;border:1px solid #3d5570;border-radius:5px;padding:2px 7px;font-size:11px;color:#b5d4f6;background:#223751}dialog{color:var(--text);background:#152131;border:1px solid #405977;border-radius:14px;padding:26px;width:min(500px,90vw);box-shadow:0 25px 100px #0009}dialog::backdrop{background:#030912aa;backdrop-filter:blur(5px)}dialog input{width:100%;margin:14px 0}dialog .video-tools{justify-content:flex-end}#tag-run{overflow-wrap:anywhere}
+.compare-chip{display:flex;gap:8px;align-items:center;border:1px solid;border-radius:8px;padding:7px 10px;max-width:100%;overflow-wrap:anywhere}.compare-chip span{min-width:0}.compare-chip button{padding:0 7px}.compare-table{table-layout:fixed;min-width:720px}.compare-table th,.compare-table td{overflow-wrap:anywhere;white-space:normal;min-width:150px}.compare-table th:first-child{width:210px}.compare-table tbody th{position:static}.compare-different{background:#283c5044}#compare-panel[hidden]{display:none}#compare-chart{height:240px}.compare-select{white-space:nowrap;font-size:12px;color:var(--muted)}
+</style></head><body><main>
+<div class="top-deck"><header><div><h1>Posttrain <span style="color:var(--blue)">/</span> Experiment dashboard</h1><p class="meta" id="directory">Connecting to eval…</p></div><div class="tools"><label><input id="auto" type="checkbox" checked> Refresh every 5 seconds</label><button id="refresh">Refresh</button><span id="updated" class="meta" aria-live="polite">—</span></div></header>
+<div id="notice" role="status"></div><div class="summary" id="summary"></div><div class="gpu-strip"><div class="gpu-heading">GPU MONITOR<span>Physical IDs · Utilization / VRAM</span></div><div id="gpus" aria-live="polite">Reading GPU…</div></div></div>
+<section class="panel"><h2>Submit evaluation</h2>
+<form id="submit-form"><label>Benchmark <select id="benchmark"><option value="robotwin">RoboTwin</option><option value="robocasa" selected>RoboCasa</option></select></label><div class="video-tools"><label>Checkpoint <select id="checkpoint" required style="max-width:900px"></select></label><button type="button" id="scan">Rescan</button></div>
+<div class="video-tools">
+<label>Setting <select id="setting" disabled><option>demo_randomized</option><option>demo_clean</option><option value="both">Clean + Randomized</option></select></label>
+<label>Weights <select id="ema-teacher"><option value="online">Checkpoint weights</option><option value="foresight_forcing">EMA · Foresight</option></select></label>
+<label>Control <select id="control"><option value="joint">Joint</option><option value="eef">EEF</option></select></label>
+<label>Episodes per task / setting <input id="episodes" type="number" min="5" max="10000" value="50" required></label>
+<label>Seed <input id="seed" type="number" min="0" value="0" required></label>
+<label>Execution steps <input id="steps" type="number" min="1" value="16" required> <span id="chunk-size" class="meta"></span></label>
+<label>Max episode steps (RoboCasa) <input id="max-steps" type="number" min="1" value="720" required></label>
+<label>CFG scale (1 = off) <input id="cfg-scale" type="number" min="0" step="any" value="1" required></label>
+<label>Visual timestep γ (tᵥ = tₐ^γ) <input id="gamma" type="number" min="0.000001" step="any" value="1.5" required></label>
+<label>Temporal ensemble <select id="temporal-ensemble"><option value="disabled">Disabled</option><option value="latest">Latest chunk</option><option value="uniform">Uniform average</option><option value="exponential" selected>Exponential weighting</option></select></label>
+<label>Ensemble half-life (steps) <input id="temporal-half-life" type="number" min="0.000001" step="any" value="4" required></label>
+<label>Flow steps <input id="flow" type="number" min="1" value="20" required></label></div>
+<div class="video-tools"><label>Server GPU <input id="server-gpus" value="0" required placeholder="0,1"></label>
+<label>Client GPU <input id="client-gpus" value="1" required></label>
+<label>Clients per GPU <input id="clients" type="number" min="1" max="16" value="8" required> <span class="meta">Reduce concurrency if simulator rendering is unstable</span></label>
+<label>Base port <input id="port" type="number" min="1024" max="65000" value="6100" required></label></div>
+<label>Tasks (comma-separated; leave blank for all benchmark tasks)<input id="task-names" style="width:100%" list="task-options"></label><datalist id="task-options"></datalist>
+<p class="meta">RoboTwin uses fixed seeds per task and setting, saves five videos per task/setting, and reports clean/randomized scores separately. Non-recorded rollouts render only at new chunks. RoboCasa uses its existing recording policy. GPU IDs follow nvidia-smi on the evaluation host; clients are assigned to servers round-robin. RoboTwin Joint/EEF both retain the training joint state. Match RoboCasa control mode to the checkpoint. Concurrent jobs may share GPUs but must use different base ports. CFG=1 disables guidance; other values require context-dropout training. Gamma=1 retains the original visual schedule. Temporal ensembling supports Joint and absolute-EEF RoboTwin, with overlapping predictions only when execution length is shorter than the predicted chunk. Half-life applies only to exponential weighting. Chunk length is read from the checkpoint; execution length cannot exceed it.</p>
+<button id="submit-button" type="submit">Submit evaluation</button><span id="submit-status" role="status"></span></form></section>
+<section class="panel"><h2>All runs</h2><div class="video-tools"><input id="search" placeholder="Filter name / checkpoint / Configuration"><select id="status-filter"><option value="">All statuses</option><option value="running">Running</option><option value="done">Completed</option><option value="stopped">Stopped</option><option value="error">Error</option><option value="invalid">Invalidated</option></select><select id="benchmark-filter"><option value="">All benchmarks</option><option value="robotwin">RoboTwin</option><option value="robocasa">RoboCasa</option></select><select id="tag-filter" aria-label="by Tag Filter"><option value="">All tags</option></select></div><div class="video-tools"><span id="compare-count" role="status">Selected 0 / 4 · Select runs to compare</span><button id="compare-clear" disabled>Clear comparison</button></div><p class="meta">Running first · then pinned 🔝 · completed runs sorted by success rate · scores use completed episodes only</p><div class="scroll"><table><thead><tr><th>Compare</th><th>Run</th><th>Status</th><th>Configuration</th><th>Progress</th><th>Success rate</th><th>Success / Completed</th></tr></thead><tbody id="runs"></tbody></table></div></section>
+<section class="panel" id="compare-panel" hidden><h2>Compare results</h2><div id="compare-legend" class="video-tools"></div><div class="video-tools"><label>Setting <select id="compare-setting"></select></label><label>Baseline run <select id="compare-baseline"></select></label></div><p id="compare-note" class="meta" role="status"></p><p class="meta">Configuration differences are highlighted; pp means percentage points. Summaries weight common tasks equally and use completed episodes only.</p><div class="scroll"><table id="compare-summary" class="compare-table"></table></div><h2 style="margin-top:24px">Success-rate curves</h2><canvas id="compare-chart" role="img" aria-label="Run success-rate comparison"></canvas><p id="compare-chart-note" class="meta"></p><h2 style="margin-top:24px">Per-task success rate / Change from baseline</h2><div class="scroll"><table id="compare-tasks" class="compare-table"></table></div></section>
+<div class="panel"><h2 id="selected-name">Select a run</h2><p class="meta" id="selected-config"></p><p id="selected-scores"></p><details><summary>Run logs</summary><select id="log-file"></select><button id="read-log">Read log tail</button><pre id="log-content" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:380px;overflow:auto;font-size:12px"></pre></details></div>
+<div class="grid"><section class="panel"><h2>Task progress <span class="meta" id="task-count"></span></h2><div class="scroll" style="max-height:730px"><table><thead><tr><th>Task / click to view videos</th><th>Progress</th><th>Success rate</th><th>Video</th></tr></thead><tbody id="tasks"></tbody></table></div></section>
+<section><div class="panel"><h2 id="video-title">Evaluation videos</h2><p id="video-note" class="meta">Select a task to view completed videos. </p><div class="video-tools"><select id="outcome" aria-label="Filter video outcomes"><option value="all">All outcomes</option><option value="success">Successes only</option><option value="failure">Failures only</option></select><select id="clip" aria-label="Select video"></select></div><video id="player" controls preload="metadata" playsinline></video><p class="meta" id="clip-note"></p><div id="prompt-panel"><h2>Current video Prompt</h2><pre id="prompt-content" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font-size:12px">Select a video to display its Prompt. </pre></div><p class="meta">Action trajectories: Action arrays were not recorded for this evaluation. </p></div>
+<div class="panel"><h2>Cumulative success rate</h2><select id="chart-setting" aria-label="Success-rate setting"></select><p class="meta">X-axis: first k episodes per task; each point weights all tasks equally.</p><canvas id="chart" aria-label="Cumulative success-rate trend" role="img"></canvas><p id="chart-note" class="meta"></p></div></section></div>
+</main><dialog id="tag-dialog"><form id="tag-form"><h2>Edit Tag</h2><p id="tag-run" class="meta"></p><label for="tag-input">Tags (comma-separated)</label><input id="tag-input" placeholder="e.g. baseline, EEF, comparison" autocomplete="off"><p class="meta">Up to 12 tags, 32 characters each; leave blank to clear.</p><p id="tag-error" role="status"></p><div class="video-tools"><button type="button" id="tag-cancel">Cancel</button><button id="tag-save" type="submit">Save</button></div></form></dialog><script>
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const states={running:'Running',done:'Completed',stopped:'Stopped',error:'Error',invalid:'Invalidated'};
+let checkpointOptions=[],benchmarkTasks={},benchmarkDefaults={};
+let apiToken='';
+let data=null,selectedRun=null,selectedTask=null,clips=[],promptRecords=[],busy=false,videoKey='',videoRequest=0;
+const rate=(s,n)=>n?(100*s/n).toFixed(1)+'%':'—';
+const progress=(n,total)=>`${n} / ${total}<div class="bar"><i style="width:${total?Math.min(100,100*n/total):0}%"></i></div>`;
+function config(r){let c=r.config;let weights=`ckpt=${c.CHECKPOINT_STEP||'Unknown'} · CFG=${c.CFG_SCALE??1} · γ=${c.GAMMA??1} · `;weights+=c.EMA_TEACHER&&c.EMA_TEACHER!=='online'?`EMA ${c.EMA_TEACHER} · `:c.WEIGHT_SOURCE==='exported_ema'?'EMA merged · ':'';let fusion=` · ensemble=${c.TEMPORAL_ENSEMBLE??'disabled'}${c.TEMPORAL_ENSEMBLE==='exponential'?' · half-life='+c.TEMPORAL_HALF_LIFE_STEPS:''}`;if(c.BENCHMARK==='robotwin')return `${weights}RoboTwin · ${c.CONTROL_MODE}${c.EEF_REPRESENTATION?' · EEF '+(c.EEF_REPRESENTATION==='absolute'?'absolute':'relative')+' + Joint':''} · ${c.TASK_CONFIG} · N=${c.N_ACTION_STEPS} · flow=${c.NUM_FLOW_STEPS}${fusion}`;return `${weights}N=${c.N_ACTION_STEPS??'?'} · flow=${c.NUM_FLOW_STEPS??'?'} · ${c.STOP_ON_SUCCESS==='true'?'Stop on success':'Fixed horizon'}${fusion}`}
+function settingName(s){return s.replace('demo_','')}
+function categoryResults(r){
+  if((r.config.BENCHMARK||'robocasa')!=='robocasa')return {};
+  const articulated=new Set(['PnPBottleToCabinetClose','PnPCanToDrawerClose','PnPCupToDrawerClose','PnPMilkToMicrowaveClose','PnPPotatoToMicrowaveClose','PnPWineToCabinetClose']);
+  const groups={articulated:{successes:0,completed:0,total:0},pnp:{successes:0,completed:0,total:0}};
+  for(const task of r.tasks||[]){
+    const name=task.name.split('/').pop().replace(/_GR1ArmsAndWaistFourierHands_Env$/,'');
+    const category=articulated.has(name)?'articulated':name.startsWith('PosttrainPnPNovel')?'pnp':null;
+    if(!category)continue;
+    for(const key of ['successes','completed','total'])groups[category][key]+=task[key]||0;
+  }
+  return groups;
+}
+function scores(r,counts=false){
+  const value=v=>counts?v.successes+' / '+v.completed:rate(v.successes,v.completed);
+  const groups=Object.entries(r.setting_results||{});
+  let result=groups.length>1?groups.map(([s,v])=>`${esc(settingName(s))}: ${value(v)}`).join('<br>'):value(r);
+  for(const [name,v] of Object.entries(categoryResults(r)))result+=`<br>${name==='pnp'?'PnP':'Articulated'}: ${value(v)}`;
+  return result;
+}
+function resultExport(r){
+  const withRate=v=>({...v,success_rate:v.completed?v.successes/v.completed:null});
+  return {schema_version:1,exported_at:new Date().toISOString(),updated_at:data.updated_at,
+    success_rate_definition:'successes / completed episodes; range 0–1; null when completed is 0',
+    run:{...withRate(r),category_results:Object.fromEntries(Object.entries(categoryResults(r)).map(([k,v])=>[k,withRate(v)])),
+      setting_results:Object.fromEntries(Object.entries(r.setting_results||{}).map(([k,v])=>[k,withRate(v)])),
+      tasks:(r.tasks||[]).map(withRate)}};
+}
+function downloadResult(r){
+  const blob=new Blob([JSON.stringify(resultExport(r),null,2)+'\n'],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download=r.id.replace(/[^a-zA-Z0-9_.-]/g,'_')+'.json';
+  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function taskName(t){return (t.setting?settingName(t.setting)+' · ':'')+t.name}
+function current(){return data?.runs.find(r=>r.id===selectedRun)}
+async function refresh(){if(busy)return;busy=true;refreshGpus();try{let response=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error('HTTP '+response.status);data=await response.json();$('notice').textContent='';$('directory').textContent=data.directory;$('updated').textContent='Updated '+new Date(data.updated_at).toLocaleTimeString();if(!current()){selectedRun=data.runs[0]?.id;selectedTask=null}render();await loadVideos()}catch(e){$('notice').textContent='Refresh failed; keeping previous data: '+e.message}finally{busy=false}}
+async function refreshGpus(){try{let response=await fetch('/api/gpus',{signal:AbortSignal.timeout(5000)});if(!response.ok)throw Error('HTTP '+response.status);let info=await response.json();if(info.error)throw Error(info.error);$('gpus').innerHTML=info.devices.map(g=>`<div class="gpu-card" title="${esc(g.name)} · ${g.temperature??'—'}°C"><div><b>GPU ${g.index}</b><span>${g.utilization??'—'}%</span></div><div class="bar"><i style="width:${g.utilization??0}%"></i></div><small>${g.memory_used===null?'—':(g.memory_used/1024).toFixed(1)} / ${g.memory_total===null?'—':(g.memory_total/1024).toFixed(0)} GB</small></div>`).join('')||'No devices detected: GPU'}catch(e){$('gpus').textContent='GPU monitor unavailable';$('gpus').title=e.message}}
+function render(){let rs=data.runs;$('summary').innerHTML=`<span><b>${rs.length}</b>Run</span><span class="running"><b>${rs.filter(r=>r.status==='running').length}</b>Running</span><span><b>${rs.filter(r=>r.status==='done').length}</b>Completed</span>`;
+let tagFilter=$('tag-filter'),oldTag=tagFilter.value,tags=[...new Set(rs.flatMap(r=>r.tags||[]))].sort();tagFilter.innerHTML='<option value="">All tags</option>'+tags.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');if(tags.includes(oldTag))tagFilter.value=oldTag;
+rs=rs.filter(r=>(!tagFilter.value||(r.tags||[]).includes(tagFilter.value))&&(!$('status-filter').value||r.status===$('status-filter').value)&&(!$('benchmark-filter').value||(r.config.BENCHMARK||'robocasa')===$('benchmark-filter').value)&&JSON.stringify([r.label,r.config,r.tags]).toLowerCase().includes($('search').value.toLowerCase()));
+$('runs').innerHTML=rs.map(r=>`<tr class="${r.id===selectedRun?'selected':''}"><td><label class="compare-select"><input type="checkbox" data-compare="${esc(r.id)}" aria-label="Compare ${esc(r.label)}" ${comparedRuns.includes(r.id)?'checked':''}> Compare</label></td><td><button class="run-name" data-run="${esc(r.id)}">${esc(r.label)}</button><div class="run-actions"><button data-pin="${esc(r.id)}" class="${r.pinned?'is-pinned':''}" aria-pressed="${!!r.pinned}" title="${r.pinned?'Unpin':'Pin'}">🔝 ${r.pinned?'Pinned':'Pin'}</button><button data-tags="${esc(r.id)}">＋ Tag</button><button data-download="${esc(r.id)}">Download JSON</button>${(r.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></td><td><span class="pill ${r.status}">${states[r.status]}</span>${r.managed&&r.status==='running'?` <button data-stop="${esc(r.id)}">Stop</button>`:''}<br><button class="delete-btn" data-delete="${esc(r.id)}" ${['running','queued','starting'].includes(r.status)?'disabled title="Stop the evaluation first"':''}>Delete</button></td><td class="number">${esc(config(r))}</td><td class="number">${progress(r.completed,r.total)}</td><td class="number"><strong>${scores(r)}</strong></td><td class="number">${scores(r,true)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">No runs in this directory. </td></tr>';
+renderComparison();
+let r=current();$('selected-scores').innerHTML=r?scores(r):'';if(!r){$('selected-name').textContent='Select a run';$('selected-config').textContent='';$('tasks').innerHTML='';$('player').removeAttribute('src');$('player').load();$('video-title').textContent='Evaluation videos';$('clip').innerHTML='';$('log-content').textContent='';$('log-file').innerHTML='';$('chart').getContext('2d').clearRect(0,0,$('chart').width,$('chart').height);return}if(!r.tasks.some(t=>t.id===selectedTask))selectedTask=r.tasks[0]?.id;
+let oldLog=$('log-file').value;$('log-file').innerHTML=(r.logs||[]).map(n=>`<option>${esc(n)}</option>`).join('');if((r.logs||[]).includes(oldLog))$('log-file').value=oldLog;
+$('selected-name').textContent=r.label;$('selected-config').textContent=`${r.error?'Error: '+r.error+' · ':''}${config(r)} · seed=${r.config.SEED??'?'} · ${states[r.status]}`;$('task-count').textContent=r.tasks.length+' tasks';
+$('tasks').innerHTML=r.tasks.map(t=>`<tr class="${t.id===selectedTask?'selected':''}"><td><button class="task-btn" data-task="${esc(t.id)}">${esc(taskName(t))}</button>${t.status==='error'?`<span class="error"> ${esc(t.error||'Error')}</span>`:t.status==='queued'?'<span class="meta"> Queued</span>':''}</td><td class="number">${progress(t.completed,t.total)}</td><td class="number">${rate(t.successes,t.completed)}<br><span class="meta">${t.successes} / ${t.completed}</span></td><td>${t.videos}</td></tr>`).join('');drawChart(r)}
+async function loadVideos(){let r=current();if(!r||!selectedTask)return;let key=r.id+'/'+selectedTask,request=++videoRequest;
+if(key!==videoKey){videoKey=key;$('player').pause();$('player').removeAttribute('src');$('player').load();$('clip').innerHTML='';clips=[];promptRecords=[];$('prompt-content').textContent='Loading matching Prompt…';}
+$('video-title').textContent=taskName(r.tasks.find(t=>t.id===selectedTask));
+try{let q=new URLSearchParams({run:r.id,task:selectedTask}),[videoRes,promptRes]=await Promise.all([fetch('/api/videos?'+q,{signal:AbortSignal.timeout(15000)}),fetch('/api/prompts?'+q,{signal:AbortSignal.timeout(15000)})]);if(!videoRes.ok||!promptRes.ok)throw Error('HTTP '+(videoRes.ok?promptRes.status:videoRes.status));let [values,prompts]=await Promise.all([videoRes.json(),promptRes.json()]);if(request!==videoRequest)return;clips=values;promptRecords=prompts.records||[];renderClips();$('video-note').textContent=clips.length+' completed videos · Newest first · Refreshing does not interrupt playback'}catch(e){if(request===videoRequest){$('video-note').textContent='Video or Prompt failed to load: '+e.message;$('prompt-content').textContent='Prompt failed to load: '+e.message}}}
+function renderClips(){let previous=$('clip').value,filter=$('outcome').value,visible=clips.filter(v=>filter==='all'||v.success===(filter==='success'));
+$('clip').innerHTML=visible.map(v=>`<option value="${esc(v.name)}">${v.success?'Success':'Failure'} · ${new Date(v.modified*1000).toLocaleString()} · ${esc(v.name.replace(/\.mp4$/,''))}</option>`).join('');
+if(visible.some(v=>v.name===previous))$('clip').value=previous;
+if(visible.length)playSelected();
+else{$('player').pause();$('player').removeAttribute('src');$('player').load();$('clip-note').textContent='No completed videos match this filter. ';renderPrompt(null)}}
+function renderPrompt(clip){if(!clip){$('prompt-content').textContent='No matching video is available. ';return}let records=promptRecords.filter(p=>Number(p.episode)===Number(clip.episode));if(!records.length){$('prompt-content').textContent=`Episode ${clip.episode} No Prompt records. Prompts are not backfilled for historical runs. `;return}$('prompt-content').textContent=records.map(p=>`Episode ${p.episode} · seed=${p.seed??'—'}${records.length>1?' · request='+p.request_index:''}\n${p.prompt}`).join('\n\n')}
+function playSelected(){let clip=clips.find(v=>v.name===$('clip').value);if(!clip){renderPrompt(null);return}let url=new URL(clip.url,location.href).href;if($('player').src!==url)$('player').src=clip.url;$('clip-note').textContent=(clip.success?'Success':'Failure')+' · Episode '+clip.episode+' · '+(clip.bytes/1048576).toFixed(1)+' MB · '+clip.name;renderPrompt(clip)}
+function drawChart(r){
+  const choice=$('chart-setting'),old=choice.value,groups=Object.keys(r.setting_results||{});
+  choice.innerHTML=groups.map(s=>`<option value="${esc(s)}">${esc(settingName(s))||'Success rate'}</option>`).join('');
+  if(groups.includes(old))choice.value=old;
+  choice.hidden=groups.length<2;
+  const curve=r.setting_results?.[choice.value]?.curve||r.curve;
+  const canvas=$('chart'),dpr=devicePixelRatio||1,w=canvas.clientWidth,h=180;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.font='12px system-ui';
+  const left=44,right=w-30,top=30,bottom=h-38,max=Math.max(1,...curve.map(p=>p.episode));
+  const x=p=>left+p.episode/max*(right-left),y=p=>bottom-p.rate*(bottom-top);
+  ctx.strokeStyle='#344356';ctx.fillStyle='#a6b6c8';
+  [0,0.5,1].forEach(v=>{const yy=bottom-v*(bottom-top);ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(right,yy);ctx.stroke();ctx.fillText(Math.round(v*100)+'%',2,yy+4)});
+  ctx.fillText('0',left,bottom+20);
+  ctx.strokeStyle='#68b7ff';ctx.lineWidth=2;ctx.beginPath();
+  curve.forEach((p,i)=>{i?ctx.lineTo(x(p),y(p)):ctx.moveTo(x(p),y(p))});ctx.stroke();
+  // Keep the complete curve; thin only markers, values and episode labels.
+  const labels=curve.filter((p,i)=>curve.length<=10||p.episode%5===0||i===curve.length-1);
+  const boxes=[];let lastTickRight=left+8,lastTickY=bottom+20;
+  ctx.font='11px system-ui';ctx.textAlign='center';
+  labels.forEach(p=>{
+    const xx=x(p),yy=y(p),value=(p.rate*100).toFixed(1)+'%';
+    ctx.fillStyle='#68b7ff';ctx.beginPath();ctx.arc(xx,yy,2.5,0,Math.PI*2);ctx.fill();
+    const width=ctx.measureText(value).width,tx=Math.max(width/2+2,Math.min(w-width/2-2,xx));
+    let ty=yy-9;
+    for(let lane=0;lane<8;lane++){
+      const candidate=lane===0?yy-9:yy+15+(lane-1)*13;
+      if(candidate>bottom+3)continue;
+      if(!boxes.some(b=>Math.abs(tx-b.x)<(width+b.width)/2+4&&Math.abs(candidate-b.y)<13)){ty=candidate;break}
+    }
+    boxes.push({x:tx,y:ty,width});
+    ctx.fillStyle='#c6e1ff';ctx.fillText(value,tx,ty);
+    const tick=String(p.episode),tickWidth=ctx.measureText(tick).width;
+    const tickY=xx-tickWidth/2<lastTickRight+4&&lastTickY===bottom+20?bottom+33:bottom+20;
+    ctx.fillStyle='#a6b6c8';ctx.fillText(tick,xx,tickY);
+    lastTickRight=xx+tickWidth/2;lastTickY=tickY;
+  });
+  canvas.setAttribute('aria-label','Cumulative success-rate trend'+labels.map(p=>`; No. ${p.episode} episodes ${(p.rate*100).toFixed(1)}%`).join(''));
+  $('chart-note').textContent=curve.length?'All tasks have completed the first '+max+'   episodes'+(curve.length>10?'; Ticks every 5 episodes, including the final point. ':'. '):'Waiting for every task to complete one episode. ';
+}
+// Comparison uses completed episodes only; absent tasks never become zero scores.
+let comparedRuns = [], comparisonBaseline = '';
+const comparisonColors = ['#8bbfff', '#6ae0bd', '#ffd894', '#e8a0ff'];
+const benchmarkOf = run => run.config.BENCHMARK || 'robocasa';
+const comparisonTasks = (run, setting) => run.tasks.filter(task => (task.setting || '') === setting);
+const taskRate = task => task?.completed > 0 ? task.successes / task.completed : null;
+function comparisonData(runs, setting, baselineId) {
+  const maps = runs.map(run => new Map(comparisonTasks(run, setting).map(task => [task.name, task])));
+  const names = [...new Set(maps.flatMap(map => [...map.keys()]))].sort();
+  const common = names.filter(name => maps.every(map => taskRate(map.get(name)) !== null));
+  const averages = maps.map(map => common.length ? common.reduce((sum, name) => sum + taskRate(map.get(name)), 0) / common.length : null);
+  const sameTasks = names.length > 0 && maps.every(map => map.size === names.length);
+  const baseline = Math.max(0, runs.findIndex(run => run.id === baselineId));
+  return {maps, names, common, averages, sameTasks, baseline};
+}
+function comparisonDelta(value, baseline) {
+  if (value === null || baseline === null) return '—';
+  const delta = (value - baseline) * 100;
+  return `${delta > 0 ? '+' : ''}${delta.toFixed(1)} pp`;
+}
+function renderComparison() {
+  comparedRuns = comparedRuns.filter(id => data.runs.some(run => run.id === id));
+  const runs = comparedRuns.map(id => data.runs.find(run => run.id === id));
+  $('compare-count').textContent = `Selected ${runs.length} / 4 · Select runs to compare`;
+  $('compare-clear').disabled = !runs.length;
+  $('compare-panel').hidden = !runs.length;
+  if (!runs.length) return;
+  if (!comparedRuns.includes(comparisonBaseline)) comparisonBaseline = comparedRuns[0];
+  $('compare-baseline').innerHTML = runs.map((run, i) => `<option value="${esc(run.id)}">${i + 1}. ${esc(run.label)}</option>`).join('');
+  $('compare-baseline').value = comparisonBaseline;
+  $('compare-legend').innerHTML = runs.map((run, i) => `<div class="compare-chip" style="border-color:${comparisonColors[i]}"><span>${i + 1}. ${esc(run.label)}</span><button data-uncompare="${esc(run.id)}" aria-label="Remove ${esc(run.label)}">×</button></div>`).join('');
+  const settings = [...new Set(runs.flatMap(run => run.tasks.map(task => task.setting || '')))];
+  const old = $('compare-setting').value;
+  $('compare-setting').innerHTML = settings.map(setting => `<option value="${esc(setting)}">${esc(settingName(setting)) || 'Default setting'}</option>`).join('');
+  if (settings.includes(old)) $('compare-setting').value = old;
+  const setting = $('compare-setting').value;
+  const comparison = comparisonData(runs, setting, comparisonBaseline);
+  const {maps, names, common, averages, baseline, sameTasks} = comparison;
+  const compatible = new Set(runs.map(benchmarkOf)).size === 1;
+  const warnings = [];
+  if (runs.length < 2) warnings.push('Select at least one more run to compare. ');
+  if (!compatible) warnings.push('Selected runs use different benchmarks; only configuration is compared. Select matching benchmarks to compare results.');
+  if (runs.some(run => run.status !== 'done')) warnings.push('Includes incomplete, failed, or invalidated runs; results are provisional.');
+  if (!sameTasks) warnings.push('Task sets differ: summaries use only common tasks with completed episodes in every run; missing tasks show —.');
+  if (common.some(name => new Set(maps.map(map => map.get(name).completed)).size > 1)) warnings.push('Common tasks have different completed-episode counts; score denominators differ.');
+  if (new Set(runs.map(run => run.config.SEED ?? '?')).size > 1) warnings.push('Seeds differ.');
+  $('compare-note').textContent = warnings.join(' ');
+  const header = '<tr><th>Metric / Configuration</th>' + runs.map((run, i) => `<th style="color:${comparisonColors[i]}">${i + 1}. ${esc(run.label)}${i === baseline ? ' · Baseline' : ''}</th>`).join('') + '</tr>';
+  const rows = [
+    ['Benchmark', runs.map(benchmarkOf)],
+    ['Status', runs.map(run => states[run.status] || run.status)],
+    ['Checkpoint', runs.map(run => run.config.CHECKPOINT || 'Unknown')],
+    ['ckpt steps', runs.map(run => run.config.CHECKPOINT_STEP || 'Unknown')],
+    ['CFG scale', runs.map(run => run.config.CFG_SCALE ?? '1')],
+    ['Visual timestep γ', runs.map(run => run.config.GAMMA ?? '1')],
+    ['Ensemble half-life', runs.map(run => run.config.TEMPORAL_HALF_LIFE_STEPS ?? '4')],
+    ['Weights', runs.map(run => run.config.EMA_TEACHER && run.config.EMA_TEACHER !== 'online' ? `EMA ${run.config.EMA_TEACHER}` : run.config.WEIGHT_SOURCE === 'exported_ema' ? 'EMA merged' : 'Checkpoint weights')],
+    ...[['Control', 'CONTROL_MODE'], ['Seed', 'SEED'], ['Execution steps', 'N_ACTION_STEPS'], ['Flow steps', 'NUM_FLOW_STEPS'], ['Episodes per task', 'N_EPISODES_PER_TASK'], ['Max episode steps', 'MAX_EPISODE_STEPS'], ['Stop on success', 'STOP_ON_SUCCESS'], ['Temporal ensemble', 'TEMPORAL_ENSEMBLE']].map(([label, key]) => [label, runs.map(run => run.config[key] ?? 'Unknown')]),
+  ];
+  if (compatible) rows.unshift(
+    [`Mean success rate on common tasks (${common.length} tasks, equal weight)`, averages.map(value => value === null ? '—' : (value * 100).toFixed(1) + '%')],
+    ['Change from baseline', averages.map(value => comparisonDelta(value, averages[baseline]))],
+    ['Selected setting: Success / Completed / Planned', maps.map(map => { const tasks = [...map.values()]; return tasks.length ? `${tasks.reduce((n,t)=>n+t.successes,0)} / ${tasks.reduce((n,t)=>n+t.completed,0)} / ${tasks.reduce((n,t)=>n+t.total,0)}` : '—'; })],
+  );
+  $('compare-summary').innerHTML = `<thead>${header}</thead><tbody>${rows.map(([label, values]) => `<tr class="${new Set(values.map(String)).size > 1 ? 'compare-different' : ''}"><th>${esc(label)}</th>${values.map(value => `<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  $('compare-tasks').innerHTML = compatible ? `<thead><tr><th>Task</th>${runs.map((run,i)=>`<th style="color:${comparisonColors[i]}">Run ${i+1}${i===baseline?' · Baseline':''}</th>`).join('')}</tr></thead><tbody>${names.map(name => `<tr><th>${esc(name)}</th>${maps.map((map,i) => { const task = map.get(name), value = taskRate(task); return `<td class="number">${task ? rate(task.successes,task.completed) + ` <span class="meta">(${task.successes}/${task.completed})</span>` : '—'}${i !== baseline ? `<br><span class="meta">${comparisonDelta(value,taskRate(maps[baseline].get(name)))}</span>` : ''}</td>`; }).join('')}</tr>`).join('') || `<tr><td colspan="${runs.length+1}" class="empty">No tasks for this setting</td></tr>`}</tbody>` : '';
+  drawComparisonChart(runs, setting, compatible && sameTasks);
+}
+function drawComparisonChart(runs, setting, enabled) {
+  const canvas = $('compare-chart'), dpr = devicePixelRatio || 1, width = canvas.clientWidth, height = 240;
+  canvas.width = width * dpr; canvas.height = height * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  const curves = runs.map(run => enabled ? (run.setting_results?.[setting]?.curve || (new Set(run.tasks.map(task => task.setting || '')).size === 1 ? run.curve : []) || []) : []);
+  const max = Math.max(1, ...curves.flatMap(curve => curve.map(point => point.episode)));
+  const left = 45, right = width - 20, top = 15, bottom = height - 35;
+  ctx.font = '12px system-ui'; ctx.lineWidth = 1; ctx.fillStyle = '#a6b6c8'; ctx.strokeStyle = '#344356';
+  for (const value of [0, .5, 1]) { const y = bottom - value * (bottom-top); ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(right,y); ctx.stroke(); ctx.fillText(`${value*100}%`,2,y+4); }
+  ctx.fillText('0',left,bottom+22); ctx.fillText(String(max),right-10,bottom+22);
+  curves.forEach((curve,i) => {
+    ctx.strokeStyle = comparisonColors[i]; ctx.fillStyle = comparisonColors[i]; ctx.lineWidth = 2; ctx.beginPath();
+    curve.forEach((point,index) => { const x=left+point.episode/max*(right-left), y=bottom-point.rate*(bottom-top); if(index)ctx.lineTo(x,y);else ctx.moveTo(x,y); }); ctx.stroke();
+    if(curve.length) { const point=curve[curve.length-1];ctx.beginPath();ctx.arc(left+point.episode/max*(right-left),bottom-point.rate*(bottom-top),3,0,Math.PI*2);ctx.fill(); }
+  });
+  $('compare-chart-note').textContent = !enabled ? 'Curves cannot be overlaid across different benchmarks or task sets.' : curves.some(curve=>curve.length) ? 'X-axis: first k episodes per task; Y-axis: task-balanced success rate. Compare runs at the same x-coordinate; colors identify runs.' : 'Waiting for every task in every run to complete one episode. ';
+  canvas.setAttribute('aria-label', 'Run success-rate comparison: ' + curves.map((curve,i)=>`Run ${i+1}: ${curve.length ? `first ${curve.at(-1).episode} episodes ${(curve.at(-1).rate*100).toFixed(1)}%` : 'No curve yet'}`).join('; '));
+}
+$('runs').addEventListener('change', event => {
+  const checkbox = event.target.closest('[data-compare]'); if (!checkbox) return;
+  if (checkbox.checked) {
+    if (comparedRuns.length >= 4) { checkbox.checked = false; $('compare-count').textContent = 'Compare up to four runs; remove one before adding another.'; return; }
+    comparedRuns.push(checkbox.dataset.compare);
+  } else comparedRuns = comparedRuns.filter(id => id !== checkbox.dataset.compare);
+  renderComparison();
+});
+$('compare-clear').onclick = () => { comparedRuns = []; render(); };
+$('compare-baseline').onchange = () => { comparisonBaseline = $('compare-baseline').value; renderComparison(); };
+$('compare-setting').onchange = renderComparison;
+$('compare-legend').onclick = event => { const button=event.target.closest('[data-uncompare]'); if(button){comparedRuns=comparedRuns.filter(id=>id!==button.dataset.uncompare);render();} };
+
+$('runs').onclick=async e=>{let download=e.target.closest('[data-download]');if(download){downloadResult(data.runs.find(r=>r.id===download.dataset.download));return}let pin=e.target.closest('[data-pin]');if(pin){pin.disabled=true;try{await post('/api/metadata',{run:pin.dataset.pin,pinned:!data.runs.find(r=>r.id===pin.dataset.pin).pinned});await refresh()}catch(error){$('notice').textContent=error.message;pin.disabled=false}return}let tagButton=e.target.closest('[data-tags]');if(tagButton){let r=data.runs.find(r=>r.id===tagButton.dataset.tags);$('tag-dialog').dataset.run=r.id;$('tag-run').textContent=r.label;$('tag-input').value=(r.tags||[]).join(', ');$('tag-error').textContent='';$('tag-dialog').showModal();$('tag-input').focus();return}let del=e.target.closest('[data-delete]');if(del){del.disabled=true;try{await post('/api/delete',{run:del.dataset.delete});await refresh()}catch(error){$('notice').textContent=error.message;del.disabled=false}return}let stop=e.target.closest('[data-stop]');if(stop){stop.disabled=true;try{await post('/api/stop',{run:stop.dataset.stop});await refresh()}catch(error){$('notice').textContent=error.message;stop.disabled=false}return}let b=e.target.closest('[data-run]');if(b){selectedRun=b.dataset.run;selectedTask=null;render();loadVideos()}};
+$('tasks').onclick=e=>{let b=e.target.closest('[data-task]');if(b){selectedTask=b.dataset.task;render();loadVideos()}};
+for(let id of ['search','status-filter','benchmark-filter','tag-filter'])$(id).oninput=()=>{if(data)render()};
+$('read-log').onclick=async()=>{try{let res=await fetch('/api/log?'+new URLSearchParams({run:selectedRun,file:$('log-file').value}));if(!res.ok)throw Error('Failed to read log');$('log-content').textContent=(await res.json()).text}catch(e){$('log-content').textContent=e.message}};
+$('chart-setting').onchange=()=>drawChart(current());
+$('clip').onchange=playSelected;$('outcome').onchange=renderClips;$('refresh').onclick=refresh;
+$('player').onerror=()=>{$('clip-note').textContent='Video unavailable. Select another clip or retry later.'};
+window.addEventListener('resize',()=>{if(current())drawChart(current());if(data)renderComparison()});setInterval(()=>{if($('auto').checked)refresh()},5000);refresh();
+function emaChoices(preferDefault=false){let c=checkpointOptions.find(c=>c.path===$('checkpoint').value),available=new Set(c?.ema_teachers||[]);for(let option of $('ema-teacher').options)option.disabled=option.value!=='online'&&!available.has(option.value);if(preferDefault){const preferred=benchmarkDefaults[$('benchmark').value]?.ema_teacher;$('ema-teacher').value=preferred==='auto'?(available.has('foresight_forcing')?'foresight_forcing':'online'):(preferred||'online')}if($('ema-teacher').selectedOptions[0]?.disabled)$('ema-teacher').value='online'}
+$('checkpoint').onchange=()=>{emaChoices(true);syncChunkSize()};
+function syncChunkSize(){let selected=checkpointOptions.find(c=>c.path===$('checkpoint').value),chunk=Number(selected?.chunk_size),steps=$('steps');if(Number.isInteger(chunk)&&chunk>0){steps.max=String(chunk);if(Number(steps.value)>chunk)steps.value=String(chunk);$('chunk-size').textContent=`Training chunk=${chunk}`}else{steps.removeAttribute('max');$('chunk-size').textContent=''}}
+function checkpointChoices(){let old=$('checkpoint').value,items=checkpointOptions.filter(c=>c.benchmark===$('benchmark').value),emaName={foresight_forcing:'Foresight'};$('checkpoint').innerHTML=items.map(c=>`<option value="${esc(c.path)}">${esc(c.path)}${c.chunk_size?' · chunk '+esc(c.chunk_size):''}${c.eef_representation==='absolute'?' · EEF absolute + Joint':c.eef_representation==='relative'?' · EEF relative + Joint':''}${c.ema_teachers?.length?' · EMA '+c.ema_teachers.map(t=>emaName[t]||t).join(' + '):c.ema_export?' · EMA merged':''}</option>`).join('');if(items.some(c=>c.path===old))$('checkpoint').value=old;$('submit-status').textContent=`${items.length} available checkpoint / total scanned: ${checkpointOptions.length}  `;emaChoices(old!==$('checkpoint').value);syncChunkSize()}
+async function options(){let res=await fetch('/api/options');if(!res.ok)throw Error('Scan failed');let o=await res.json();apiToken=o.token;const firstLoad=!Object.keys(benchmarkDefaults).length;benchmarkDefaults=o.defaults;checkpointOptions=o.checkpoints;benchmarkTasks={robotwin:o.tasks,robocasa:o.robocasa_tasks};if(firstLoad)applyBenchmarkDefaults();else checkpointChoices();$('task-options').innerHTML=benchmarkTasks[$('benchmark').value].map(t=>`<option value="${esc(t)}">`).join('')}
+
+async function post(url,body){let response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-Posttrain-Token':apiToken},body:JSON.stringify(body)});let value=await response.json();if(!response.ok)throw Error(value.error||'HTTP '+response.status);return value}
+$('tag-cancel').onclick=()=>$('tag-dialog').close();
+$('tag-form').onsubmit=async e=>{e.preventDefault();$('tag-save').disabled=true;try{await post('/api/metadata',{run:$('tag-dialog').dataset.run,tags:$('tag-input').value.split(/[,，]/).map(t=>t.trim()).filter(Boolean)});$('tag-dialog').close();await refresh()}catch(error){$('tag-error').textContent=error.message}finally{$('tag-save').disabled=false}};
+$('scan').onclick=()=>options().catch(e=>$('submit-status').textContent=e.message);
+$('submit-form').onsubmit=async event=>{event.preventDefault();$('submit-button').disabled=true;try{let list=id=>$(id).value.split(',').map(s=>s.trim()).filter(Boolean);let body={benchmark:$('benchmark').value,checkpoint:$('checkpoint').value,setting:$('setting').value,ema_teacher:$('ema-teacher').value,control_mode:$('control').value,episodes:Number($('episodes').value),seed:Number($('seed').value),execution_steps:Number($('steps').value),flow_steps:Number($('flow').value),cfg_scale:Number($('cfg-scale').value),gamma:Number($('gamma').value),temporal_ensemble:$('temporal-ensemble').value,temporal_half_life_steps:Number($('temporal-half-life').value),max_episode_steps:Number($('max-steps').value),clients_per_gpu:Number($('clients').value),base_port:Number($('port').value),server_gpus:list('server-gpus').map(Number),client_gpus:list('client-gpus').map(Number),tasks:list('task-names')};let value=await post('/api/submit',body);selectedRun=value.id;$('submit-status').textContent='Submitted: '+value.id;await refresh()}catch(e){$('submit-status').textContent='Submission failed: '+e.message}finally{$('submit-button').disabled=false}};
+function applyBenchmarkDefaults(){
+  const benchmark=$('benchmark').value,preset=benchmarkDefaults[benchmark];
+  if(!preset)return;
+  const fields={episodes:'episodes',seed:'seed',execution_steps:'steps',flow_steps:'flow',cfg_scale:'cfg-scale',gamma:'gamma',temporal_ensemble:'temporal-ensemble',temporal_half_life_steps:'temporal-half-life',max_episode_steps:'max-steps',clients_per_gpu:'clients',base_port:'port',server_gpus:'server-gpus',client_gpus:'client-gpus',control_mode:'control',setting:'setting'};
+  for(const [key,id] of Object.entries(fields))$(id).value=Array.isArray(preset[key])?preset[key].join(','):String(preset[key]);
+  $('task-names').value='';$('setting').disabled=benchmark==='robocasa';
+  $('task-options').innerHTML=(benchmarkTasks[benchmark]||[]).map(t=>`<option value="${esc(t)}">`).join('');
+  checkpointChoices();emaChoices(true);syncChunkSize();
+}
+$('benchmark').onchange=applyBenchmarkDefaults;
+options().catch(e=>$('submit-status').textContent=e.message);
+</script></body></html>

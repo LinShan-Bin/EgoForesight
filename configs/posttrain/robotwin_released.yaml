@@ -1,0 +1,175 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+# Released-checkpoint recipe; verified against the archived training configuration.
+# See docs/training.md for matching batch and DeepSpeed settings.
+datasets:
+  vla_data:
+    action_representation: absolute
+    control_mode_prompt_format: ee_representation_v1
+    data_mix: robotwin_full_aug_aligned
+    data_root_dir: ${oc.env:DATA_ROOT,./data/robotwin-aligned}
+    dataset_py: lerobot_datasets
+    enable_action_alignment: true
+    enable_camera_motion_compensation: false
+    enable_relative_action: false
+    enable_state_relative_eef: false
+    image_pair_color_jitter:
+      brightness: 0.3
+      contrast: 0.4
+      enabled: true
+      hue: 0.08
+      saturation: 0.5
+    image_pair_only: true
+    max_zero_action_frames: 8
+    num_workers: 16
+    per_device_batch_size: 16
+    persistent_workers: true
+    prefetch_factor: 8
+    relative_eef_frame: camera_spatial
+    return_image_pair: true
+framework:
+  action_model:
+    action_dim: 130
+    action_space:
+      name: robotwin_aug_aligned
+      representation: absolute
+      joint_representation: absolute
+      statistics_key: robotwin_aug_aligned
+      relative_eef_frame: camera_spatial
+      static_camera_frame: true
+      frame_convention: robotwin_head_opencv_v1
+    chunk_size: 48
+    encoding: raw
+    state_dim: 130
+  dino:
+    feature_dim: 768
+    freeze: true
+    model_path: ${oc.env:DINO_REPO}
+    model_variant: dinov3_vitb16
+    patch_size: 16
+    spatial_pool_size: 2
+    view_index: 0
+    weights_path: ${oc.env:DINO_WEIGHTS}
+  flow:
+    action_loss_weight: 1.0
+    classifier_free_guidance:
+      context_dropout_prob: 0.1
+      enabled: true
+    foresight_forcing:
+      alpha_max: 3.0
+      alpha_min: 0.5
+      ema_decay: 0.999
+      enabled: true
+      log_per_dataset_metrics: false
+      projector_hidden_size: 3072
+      representation_weight: 0.05
+      student_layer: 5
+      teacher_edge_prob: 0.02
+      teacher_enabled: true
+      teacher_layer: 11
+      teacher_timestep_ratio:
+        distribution: uniform
+        max: 1.0
+        min: 0.0
+    inference_steps: 4
+    predict_future_vision: true
+    self_flow:
+      enabled: false
+    vision_loss_weight: 0.1
+  mot:
+    action_dim: 130
+    action_intermediate_size: 2048
+    adaln_rank: 128
+    context_dim: 2560
+    depth: 16
+    gradient_checkpointing: false
+    hidden_size: 1536
+    layers_per_vlm_feature: 2
+    max_action_tokens: 48
+    max_vision_tokens: 120
+    metadata:
+      fields:
+      - embodiment_tag
+      - end_effector_type
+      - dataset_id
+      - dataset_family
+      - robot_family
+      - robot_type
+      - control_mode
+      - action_representation
+      num_buckets: 4096
+    num_heads: 24
+    num_vlm_features: 8
+    pretrained_action_tokens: 30
+    qk_norm_eps: 1.0e-06
+    robot_state:
+      enabled: true
+      encoder_hidden_size: 512
+      tokenization: single_token
+    timestep_rank: 128
+    timestep_scale: 1000.0
+    vision_dim: 768
+    vision_intermediate_size: 6144
+    vlm_feature_layers:
+    - 4
+    - 8
+    - 12
+    - 16
+    - 20
+    - 24
+    - 28
+    - 32
+  name: Qwen35MoT3
+  qwenvl:
+    attn_implementation: flash_attention_4
+    base_vlm: ${oc.env:QWEN_MODEL,Qwen/Qwen3.5-4B}
+    gradient_checkpointing: false
+    image_processor_on_gpu: true
+    max_context_tokens: 512
+    optimize_image_layout: true
+    require_gdn_fast_path: true
+    tuning_mode: full
+run_id: EgoForesight-RoboTwin
+run_root_dir: results
+seed: 42
+trainer:
+  eval_interval: 1000
+  freeze_modules: mot_model.vision_final_norm,mot_model.action_final_norm,mot_model.blocks.0.vision_joint_norm,mot_model.blocks.0.action_joint_norm,mot_model.blocks.0.vision_post_attn_gamma,mot_model.blocks.0.action_post_attn_gamma,mot_model.blocks.0.vision_ffn_norm,mot_model.blocks.0.action_ffn_norm,mot_model.blocks.1.vision_joint_norm,mot_model.blocks.1.action_joint_norm,mot_model.blocks.1.vision_post_attn_gamma,mot_model.blocks.1.action_post_attn_gamma,mot_model.blocks.1.vision_ffn_norm,mot_model.blocks.1.action_ffn_norm,mot_model.blocks.2.vision_joint_norm,mot_model.blocks.2.action_joint_norm,mot_model.blocks.2.vision_post_attn_gamma,mot_model.blocks.2.action_post_attn_gamma,mot_model.blocks.2.vision_ffn_norm,mot_model.blocks.2.action_ffn_norm,mot_model.blocks.3.vision_joint_norm,mot_model.blocks.3.action_joint_norm,mot_model.blocks.3.vision_post_attn_gamma,mot_model.blocks.3.action_post_attn_gamma,mot_model.blocks.3.vision_ffn_norm,mot_model.blocks.3.action_ffn_norm,mot_model.blocks.4.vision_joint_norm,mot_model.blocks.4.action_joint_norm,mot_model.blocks.4.vision_post_attn_gamma,mot_model.blocks.4.action_post_attn_gamma,mot_model.blocks.4.vision_ffn_norm,mot_model.blocks.4.action_ffn_norm,mot_model.blocks.5.vision_joint_norm,mot_model.blocks.5.action_joint_norm,mot_model.blocks.5.vision_post_attn_gamma,mot_model.blocks.5.action_post_attn_gamma,mot_model.blocks.5.vision_ffn_norm,mot_model.blocks.5.action_ffn_norm,mot_model.blocks.6.vision_joint_norm,mot_model.blocks.6.action_joint_norm,mot_model.blocks.6.vision_post_attn_gamma,mot_model.blocks.6.action_post_attn_gamma,mot_model.blocks.6.vision_ffn_norm,mot_model.blocks.6.action_ffn_norm,mot_model.blocks.7.vision_joint_norm,mot_model.blocks.7.action_joint_norm,mot_model.blocks.7.vision_post_attn_gamma,mot_model.blocks.7.action_post_attn_gamma,mot_model.blocks.7.vision_ffn_norm,mot_model.blocks.7.action_ffn_norm,mot_model.blocks.8.vision_joint_norm,mot_model.blocks.8.action_joint_norm,mot_model.blocks.8.vision_post_attn_gamma,mot_model.blocks.8.action_post_attn_gamma,mot_model.blocks.8.vision_ffn_norm,mot_model.blocks.8.action_ffn_norm,mot_model.blocks.9.vision_joint_norm,mot_model.blocks.9.action_joint_norm,mot_model.blocks.9.vision_post_attn_gamma,mot_model.blocks.9.action_post_attn_gamma,mot_model.blocks.9.vision_ffn_norm,mot_model.blocks.9.action_ffn_norm,mot_model.blocks.10.vision_joint_norm,mot_model.blocks.10.action_joint_norm,mot_model.blocks.10.vision_post_attn_gamma,mot_model.blocks.10.action_post_attn_gamma,mot_model.blocks.10.vision_ffn_norm,mot_model.blocks.10.action_ffn_norm,mot_model.blocks.11.vision_joint_norm,mot_model.blocks.11.action_joint_norm,mot_model.blocks.11.vision_post_attn_gamma,mot_model.blocks.11.action_post_attn_gamma,mot_model.blocks.11.vision_ffn_norm,mot_model.blocks.11.action_ffn_norm,mot_model.blocks.12.vision_joint_norm,mot_model.blocks.12.action_joint_norm,mot_model.blocks.12.vision_post_attn_gamma,mot_model.blocks.12.action_post_attn_gamma,mot_model.blocks.12.vision_ffn_norm,mot_model.blocks.12.action_ffn_norm,mot_model.blocks.13.vision_joint_norm,mot_model.blocks.13.action_joint_norm,mot_model.blocks.13.vision_post_attn_gamma,mot_model.blocks.13.action_post_attn_gamma,mot_model.blocks.13.vision_ffn_norm,mot_model.blocks.13.action_ffn_norm,mot_model.blocks.14.vision_joint_norm,mot_model.blocks.14.action_joint_norm,mot_model.blocks.14.vision_post_attn_gamma,mot_model.blocks.14.action_post_attn_gamma,mot_model.blocks.14.vision_ffn_norm,mot_model.blocks.14.action_ffn_norm,mot_model.blocks.15.vision_joint_norm,mot_model.blocks.15.action_joint_norm,mot_model.blocks.15.vision_post_attn_gamma,mot_model.blocks.15.action_post_attn_gamma,mot_model.blocks.15.vision_ffn_norm,mot_model.blocks.15.action_ffn_norm
+  freeze_vlm_for_vla: false
+  gradient_accumulation_steps: 2
+  gradient_clipping: 0.0
+  is_resume: false
+  learning_rate:
+    base: 1.0e-05
+    mot_model: 5.0e-05
+    qwen_vl_interface: 1.0e-05
+  logging:
+    compact: true
+  logging_frequency: 100
+  lr_scheduler_type: cosine_with_min_lr
+  max_train_steps: 150000
+  num_warmup_steps: 2000
+  open_loop:
+    enabled: false
+  open_loop_interval: 0
+  optimizer:
+    adjust_lr_fn: match_rms_adamw
+    aux_gradient_clipping: 1.0
+    backend: deepspeed
+    betas:
+    - 0.9
+    - 0.95
+    eps: 1.0e-08
+    momentum: 0.95
+    mot_weight_decay: 1.0e-08
+    name: Muon
+    ns_kernel: hybrid
+    ns_method: gram
+    weight_decay: 0.01
+  pretrained_checkpoint: ${oc.env:PRETRAINED_CHECKPOINT}
+  resume_step: null
+  save_interval: 10000
+  scheduler_specific_kwargs:
+    min_lr_rate: 0.1
+  torch_compile_mode: default
+  torch_compile_modules: mot_blocks
+  use_torch_compile: true

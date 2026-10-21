@@ -1,0 +1,8 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+include README.md AGENTS.md LICENSE NOTICE.md environment.yml .env.example .gitignore
+recursive-include licenses *
+recursive-include docs *.md
+recursive-include configs *.json *.yaml
+recursive-include requirements *.txt
+recursive-include scripts *.sh *.html *.json
+recursive-include assets *.md *.png *.jpg

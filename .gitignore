@@ -1,0 +1,35 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+build/
+dist/
+.ruff_cache/
+.pytest_cache/
+results/
+data/
+external/
+checkpoints/
+wandb/
+*.pt
+*.pth
+*.safetensors
+*.npy
+*.npz
+*.hdf5
+*.mp4
+*.log
+
+# README artwork is distributed, even inside a parent repository ignoring images.
+!assets/*.jpg
+!assets/*.png
+
+# Internal release verification artifacts must not be distributed.
+/tools/verify_release.py
+/docs/validated_environment.json
+/docs/validation_results.json
+/docs/validation.md
+/release_validation/
+/validation_logs/

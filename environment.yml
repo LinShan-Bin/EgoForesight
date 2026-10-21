@@ -1,0 +1,8 @@
+# Copyright 2026 Chubin Zhang. SPDX-License-Identifier: MIT
+name: egofore
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - ffmpeg
