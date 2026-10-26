@@ -7,7 +7,7 @@
 
 **Joint vision-action flow · Reliability-aware learning · Privileged-future distillation**
 
-[Method](#method) · [Results](#results) · [Checkpoints](#checkpoints) · [Quick start](#quick-start) · [Documentation](#documentation)
+[Paper (arXiv)](https://arxiv.org/abs/2610.31845) · [Method](#method) · [Results](#results) · [Checkpoints](#checkpoints) · [Quick start](#quick-start) · [Documentation](#documentation)
 
 </div>
 
@@ -157,13 +157,13 @@ Built on **StarVLA**, with components and integrations from Qwen, DINOv3, NVIDIA
 
 ## Citation
 
-BibTeX placeholder — replace with the final paper citation when available.
+If you find EgoForesight useful in your research, please cite:
 
 ```bibtex
-@misc{egoforesight,
-  title  = {EgoForesight: Effectively Scaling Policy Learning with Noisy Egocentric Actions},
-  author = {TODO: Full author list},
-  year   = {TODO},
-  url    = {TODO: Paper URL}
+@article{zhang2026egoforesight,
+  title={EgoForesight: Effectively Scaling Policy Learning with Noisy Egocentric Actions},
+  author={Zhang, Chubin and Wang, Changyuan and Wang, Yirui and Li, Ao and Ma, Shilin and Su, Yue and Zhou, Cai and Xu, Xiuwei and Zhang, Tianle and Tang, Yansong},
+  journal={arXiv preprint arXiv:2610.31845},
+  year={2026}
 }
 ```
